@@ -53,6 +53,7 @@ from .roi_heads import (
 )
 from .test_time_augmentation import DatasetMapperTTA, GeneralizedRCNNWithTTA
 from .mmdet_wrapper import MMDetBackbone, MMDetDetector
+from . import ema
 
 _EXCLUDE = {"ShapeSpec"}
 __all__ = [k for k in globals().keys() if k not in _EXCLUDE and not k.startswith("_")]

@@ -1,6 +1,19 @@
 from functools import partial
+from pathlib import Path
+import importlib.util
+import sys
 
 from ..common.coco_loader_lsj_1024 import dataloader
+
+# Ensure dataset registration is available without relying on package imports.
+_det_root = Path(__file__).resolve().parents[4]
+_register_path = _det_root / "datasets" / "register_armed.py"
+if _register_path.exists():
+    _spec = importlib.util.spec_from_file_location("register_armed", _register_path)
+    _module = importlib.util.module_from_spec(_spec)
+    _spec.loader.exec_module(_module)
+else:
+    raise FileNotFoundError(f"Missing dataset registration at {_register_path}")
 from .cascade_mask_rcnn_vitdet_b_100ep import (
     lr_multiplier,
     model,
@@ -11,6 +24,12 @@ from .cascade_mask_rcnn_vitdet_b_100ep import (
 
 # Pretrained model: EVA02 BSL on COCO
 train.init_checkpoint = ""
+
+# Dataset: ARMED (COCO-format custom)
+dataloader.train.dataset.names = "armed_train"
+dataloader.test.dataset.names = "armed_val"
+dataloader.evaluator.dataset_name = "armed_val"
+model.roi_heads.num_classes = 3
 
 # Image size: 1024 (same as base config)
 model.backbone.net.img_size = 1024
@@ -44,4 +63,13 @@ lr_multiplier.warmup_length = 1000 / train.max_iter
 
 # Batch Size: 2
 dataloader.test.num_workers = 0
-dataloader.train.total_batch_size = 2
+dataloader.train.total_batch_size = 1
+
+
+dataloader.train.mapper.use_instance_mask=False
+dataloader.train.mapper.recompute_boxes=False
+
+# Disable mask head for bbox-only training (dataset has no masks).
+model.roi_heads.mask_in_features = None
+model.roi_heads.mask_pooler = None
+model.roi_heads.mask_head = None
