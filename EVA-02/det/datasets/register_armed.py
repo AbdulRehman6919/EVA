@@ -5,14 +5,14 @@ from detectron2.data.datasets import register_coco_instances
 register_coco_instances(
     "armed_train",
     {},
-    "/path/to/armed_train.json",
-    "/path/to/images",
+    "/kaggle/working/OriginalDataset/annotations/armed_train.json",
+    "/kaggle/working/OriginalDataset",
 )
 register_coco_instances(
     "armed_val",
     {},
-    "/path/to/armed_val.json",
-    "/path/to/images",
+    "/kaggle/working/OriginalDataset/annotations/armed_val.json",
+    "/kaggle/working/OriginalDataset",
 )
 
 MetadataCatalog.get("armed_train").thing_classes = ["Armed", "Unarmed", "Gun"]
