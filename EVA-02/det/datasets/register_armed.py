@@ -4,7 +4,8 @@ import importlib.util
 import sys
 
 # from ..common.coco_loader_lsj_1024 import dataloader
-from datasets.common.coco_loader_lsj_1024 import dataloader
+# from datasets.common.coco_loader_lsj_1024 import dataloader
+from projects.ViTDet.configs.common.coco_loader_lsj_1024 import dataloader
 
 # Ensure dataset registration is available without relying on package imports.
 _det_root = Path(__file__).resolve().parents[4]
