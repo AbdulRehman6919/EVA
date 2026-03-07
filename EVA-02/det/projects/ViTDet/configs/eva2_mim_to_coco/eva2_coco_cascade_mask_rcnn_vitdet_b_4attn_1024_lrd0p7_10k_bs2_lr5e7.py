@@ -66,7 +66,7 @@ lr_multiplier.warmup_length = 1000 / train.max_iter
 
 # Batch Size: 2
 dataloader.test.num_workers = 0
-dataloader.train.total_batch_size = 1
+dataloader.train.total_batch_size = 2
 
 
 dataloader.train.mapper.use_instance_mask=False
