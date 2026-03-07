@@ -1,77 +1,20 @@
-from functools import partial
-from pathlib import Path
-import importlib.util
-import sys
+from detectron2.data import MetadataCatalog
+from detectron2.data.datasets import register_coco_instances
 
-# from ..common.coco_loader_lsj_1024 import dataloader
-# from datasets.common.coco_loader_lsj_1024 import dataloader
-from projects.ViTDet.configs.common.coco_loader_lsj_1024 import dataloader
-
-# Ensure dataset registration is available without relying on package imports.
-_det_root = Path(__file__).resolve().parents[4]
-_register_path = _det_root / "datasets" / "register_armed.py"
-if _register_path.exists():
-    _spec = importlib.util.spec_from_file_location("register_armed", _register_path)
-    _module = importlib.util.module_from_spec(_spec)
-    _spec.loader.exec_module(_module)
-else:
-    raise FileNotFoundError(f"Missing dataset registration at {_register_path}")
-from .cascade_mask_rcnn_vitdet_b_100ep import (
-    lr_multiplier,
-    model,
-    train,
-    optimizer,
-    get_vit_lr_decay_rate,
+# Update these paths to your dataset locations.
+register_coco_instances(
+    "armed_train",
+    {},
+    "/kaggle/working/OriginalDataset/annotations/armed_train.json",
+    "/kaggle/working/OriginalDataset",
+)
+register_coco_instances(
+    "armed_val",
+    {},
+    "/kaggle/working/OriginalDataset/annotations/armed_val.json",
+    "/kaggle/working/OriginalDataset",
 )
 
-# Pretrained model: EVA02 BSL on COCO
-train.init_checkpoint = ""
+MetadataCatalog.get("armed_train").thing_classes = ["Armed", "Unarmed", "Gun"]
+MetadataCatalog.get("armed_val").thing_classes = ["Armed", "Unarmed", "Gun"]
 
-# Dataset: ARMED (COCO-format custom)
-dataloader.train.dataset.names = "armed_train"
-dataloader.test.dataset.names = "armed_val"
-dataloader.evaluator.dataset_name = "armed_val"
-model.roi_heads.num_classes = 3
-
-# Image size: 1024 (same as base config)
-model.backbone.net.img_size = 1024
-model.backbone.square_pad = 1024
-model.backbone.net.patch_size = 16
-model.backbone.net.window_size = 16
-model.backbone.net.embed_dim = 768
-model.backbone.net.depth = 12
-model.backbone.net.num_heads = 12
-model.backbone.net.mlp_ratio = 4 * 2 / 3
-model.backbone.net.use_act_checkpoint = False
-model.backbone.net.drop_path_rate = 0.1
-
-# 2, 5, 8, 11 for global attention
-model.backbone.net.window_block_indexes = [0, 1, 3, 4, 6, 7, 9, 10]
-
-# Optimizer: AdamW, Base LR: 5e-7
-optimizer.lr = 5e-7
-optimizer.params.lr_factor_func = partial(get_vit_lr_decay_rate, lr_decay_rate=0.7, num_layers=12)
-optimizer.params.overrides = {}
-optimizer.params.weight_decay_norm = None
-
-# Steps: 10000
-train.max_iter = 10000
-lr_multiplier.scheduler.milestones = [
-    train.max_iter * 8 // 10,
-    train.max_iter * 9 // 10,
-]
-lr_multiplier.scheduler.num_updates = train.max_iter
-lr_multiplier.warmup_length = 1000 / train.max_iter
-
-# Batch Size: 2
-dataloader.test.num_workers = 0
-dataloader.train.total_batch_size = 1
-
-
-dataloader.train.mapper.use_instance_mask=False
-dataloader.train.mapper.recompute_boxes=False
-
-# Disable mask head for bbox-only training (dataset has no masks).
-model.roi_heads.mask_in_features = None
-model.roi_heads.mask_pooler = None
-model.roi_heads.mask_head = None
