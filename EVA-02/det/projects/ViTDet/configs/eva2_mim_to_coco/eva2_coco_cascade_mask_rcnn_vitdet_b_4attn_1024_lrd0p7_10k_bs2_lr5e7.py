@@ -3,20 +3,20 @@ from pathlib import Path
 import importlib.util
 import sys
 
-# from ..common.coco_loader_lsj_1024 import dataloader
-# from datasets.common.coco_loader_lsj_1024 import dataloader
 from projects.ViTDet.configs.common.coco_loader_lsj_1024 import dataloader
 
-
 # Ensure dataset registration is available without relying on package imports.
-_det_root = Path(__file__).resolve().parents[4]
-_register_path = _det_root / "datasets" / "register_armed.py"
-if _register_path.exists():
-    _spec = importlib.util.spec_from_file_location("register_armed", _register_path)
-    _module = importlib.util.module_from_spec(_spec)
-    _spec.loader.exec_module(_module)
-else:
-    raise FileNotFoundError(f"Missing dataset registration at {_register_path}")
+_register_path = None
+for _parent in Path(__file__).resolve().parents:
+    _candidate = _parent / "datasets" / "register_armed.py"
+    if _candidate.exists():
+        _register_path = _candidate
+        break
+if _register_path is None:
+    raise FileNotFoundError("Missing dataset registration at datasets/register_armed.py")
+_spec = importlib.util.spec_from_file_location("register_armed", _register_path)
+_module = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_module)
 from .cascade_mask_rcnn_vitdet_b_100ep import (
     lr_multiplier,
     model,
