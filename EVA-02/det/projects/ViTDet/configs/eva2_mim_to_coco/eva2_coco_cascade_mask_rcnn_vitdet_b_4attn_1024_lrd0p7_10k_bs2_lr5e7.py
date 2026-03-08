@@ -76,3 +76,6 @@ dataloader.train.mapper.recompute_boxes=False
 model.roi_heads.mask_in_features = None
 model.roi_heads.mask_pooler = None
 model.roi_heads.mask_head = None
+
+
+train.checkpointer.period = 1500
