@@ -56,7 +56,7 @@ optimizer.params.overrides = {}
 optimizer.params.weight_decay_norm = None
 
 # Steps: 10000
-train.max_iter = 10000
+train.max_iter = 50000
 lr_multiplier.scheduler.milestones = [
     train.max_iter * 8 // 10,
     train.max_iter * 9 // 10,
