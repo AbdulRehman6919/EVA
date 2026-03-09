@@ -57,6 +57,7 @@ optimizer.params.weight_decay_norm = None
 
 # Steps: 10000
 train.max_iter = 50000
+train.init_checkpoint=  "/kaggle/working/EVA/EVA-02/det/output/model_0008999.pth"
 lr_multiplier.scheduler.milestones = [
     train.max_iter * 8 // 10,
     train.max_iter * 9 // 10,

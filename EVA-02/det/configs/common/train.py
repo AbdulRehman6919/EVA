@@ -10,8 +10,8 @@ train = dict(
         find_unused_parameters=False,
         fp16_compression=False,
     ),
-    checkpointer=dict(period=1500, max_to_keep=100),  # options for PeriodicCheckpointer
-    eval_period=1500,
+    checkpointer=dict(period=2500, max_to_keep=100),  # options for PeriodicCheckpointer
+    eval_period=2500,
     log_period=20,
     device="cuda",
 
